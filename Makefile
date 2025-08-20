@@ -1,21 +1,32 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g -Iinclude
+CFLAGS = -Wall -Wextra -g -std=c11 -Iinclude
 
-SRC = src/main.c
-OBJ = $(SRC:.c=.o)
+SRCDIR = src
+INCDIR = include
+BUILDDIR = build
 
-TARGET = mysh
+$(shell mkdir -p $(BUILDDIR))
+
+TARGET = $(BUILDDIR)/TRASH
+
+SRCS = $(wildcard $(SRCDIR)/*.c)
+
+OBJS = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(SRCS))
 
 all: $(TARGET)
 
-$(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $(OBJ)
+$(TARGET): $(OBJS)
+	$(CC) $(OBJS) -o $(TARGET) $(CFLAGS) 
 
-%.o: %.c
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: all
-	./mysh
+	./$(TARGET)
 
-clean: 
-	rm -f $(OBJ) $(TARGET)
+.PHONY: all run clean
+
+clean:
+	rm -f $(BUILDDIR)/*.o $(TARGET)
+	rmdir $(BUILDDIR) 2>/dev/null || true 
+
